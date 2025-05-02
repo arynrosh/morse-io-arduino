@@ -61,6 +61,13 @@ This Arduino project lets you input Morse code through a pushbutton and view the
 
 ---
 
+## Demo Video
+
+Watch the Morse I/O project in action:  
+[![Watch the video](https://img.youtube.com/vi/JBAV1wwMZnk/0.jpg)](https://www.youtube.com/watch?v=JBAV1wwMZnk)
+
+---
+
 ## How It Works
 
 - **Morse Button (Pin 2):**
