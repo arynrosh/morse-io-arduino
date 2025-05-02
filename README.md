@@ -1,91 +1,108 @@
-# Morse I/O on Arduino
+# Morse I/O with LCD Display
 
-This project turns your Arduino into a functional Morse code input/output device using physical buttons and a 16x2 LCD display. Users can type messages in Morse code, view them on the LCD, and scroll through long messages. Great for learning Morse and building embedded interaction systems.
-
-## 📦 Features
-
-- Tap-based Morse input using a button
-- Dot/dash distinction based on press duration
-- Real-time Morse display
-- Auto letter detection after pause
-- Message display with horizontal scrolling
-- Space, delete (short press), and full-clear (long press) controls
+This Arduino project lets you input Morse code through a pushbutton and view the decoded message on a 16x2 LCD screen. It also includes buttons to insert spaces, delete characters, clear the message, and scroll through the message if it exceeds 16 characters.
 
 ---
 
-## 🧠 How It Works
+## Features
 
-- A **short press (<250ms)** is treated as a dot `.`  
-- A **long press (≥250ms)** is treated as a dash `-`  
-- After **1.5 seconds of no input**, the current Morse code sequence is translated into a character  
-- Users can add **spaces**, **delete the last character**, or **clear the full message**  
-- Use **scroll buttons** to navigate long messages (>16 characters) on the display  
-
----
-
-## 🖼️ Schematic
-
-
-**Wiring (Arduino UNO):**
-
-| Component          | Pin |
-|--------------------|-----|
-| LCD RS             | 7   |
-| LCD EN             | 8   |
-| LCD D4             | 9   |
-| LCD D5             | 10  |
-| LCD D6             | 11  |
-| LCD D7             | 12  |
-| Morse Input Button | 2   |
-| Space Button       | 3   |
-| Delete Button      | 4   |
-| Scroll Left        | 5   |
-| Scroll Right       | 6   |
-
-*Use `INPUT_PULLUP` for all buttons.*
+- Morse code entry via single button (dot/dash by press duration)
+- Automatic decoding into alphabet and punctuation
+- Real-time message display on LCD
+- Add space, delete characters, or clear entire message
+- Scroll left/right through long messages
 
 ---
 
-## ▶️ How to Run
+## Hardware Required
 
-1. **Connect components** using the schematic above.
-2. **Upload the code** using the Arduino IDE.
-3. **Open Serial Monitor (9600 baud)** to see message logs.
-4. **Press the Morse input button**:
-   - Tap: `.` (dot)
-   - Hold: `-` (dash)
-5. After 1.5 seconds pause, the character will appear.
-6. Use the extra buttons:
-   - **Space**: adds space
-   - **Delete**: short press removes last character; long press clears message
-   - **Scroll Left/Right**: to move through long messages
+- Arduino UNO
+- 16x2 LCD Display
+- 5 Pushbuttons
+- Jumper wires
+- Breadboard or protoboard
+- USB Cable
+  
+---
+
+## Pin Configuration
+
+| Component         | Arduino Pin |
+|------------------|-------------|
+| LCD RS           | 7           |
+| LCD EN           | 8           |
+| LCD D4           | 9           |
+| LCD D5           | 10          |
+| LCD D6           | 11          |
+| LCD D7           | 12          |
+| Morse Button     | 2           |
+| Space Button     | 3           |
+| Delete Button    | 4           |
+| Scroll Left      | 5           |
+| Scroll Right     | 6           |
 
 ---
 
-## 📷 Photos & Videos
+## Schematic Diagram
 
-![breadboard](https://github.com/user-attachments/assets/b6580166-20fa-4458-bc2f-b806848c8875)
-![schematic](https://github.com/user-attachments/assets/47385173-b6ee-47fe-af52-bb616b39e30f)
+![breadboard](https://github.com/user-attachments/assets/0737f0da-3754-40a7-9505-99befac385b3)
 
-
----
-
-## 🛠️ Dependencies
-
-- Arduino UNO (or compatible)
-- 16x2 LCD (HD44780 compatible)
-- 5 tactile buttons
-- Arduino `LiquidCrystal` library (included by default)
+![schematic](https://github.com/user-attachments/assets/7b542d55-cbfc-4ebe-97cb-e1e83b62f8f6)
 
 ---
 
-## 📄 License
+## How to Run
 
-MIT License. Feel free to use and modify this project.
+1. Connect all buttons and LCD according to the pinout above.
+2. Upload the `morse-io.ino` sketch to your Arduino UNO using the Arduino IDE.
+3. Power the board and wait for the prompt: **“Press to Start!”**
+4. Press the Morse button once to begin typing.
+5. Start entering Morse code by pressing and holding for dots and dashes.
 
 ---
 
-## 💬 Credits
+## How It Works
 
-Developed by Aryan Roshan using components from the ELEGOO kit.
+- **Morse Button (Pin 2):**
+  - Press and release quickly → `.` (dot)
+  - Press and hold (>250ms) → `-` (dash)
+  - If no press for 1.5s → decode current Morse sequence
 
+- **Space Button (Pin 3):**
+  - Adds a space to the message
+
+- **Delete Button (Pin 4):**
+  - Short press → delete last character
+  - Long press (>1s) → clear entire message
+
+- **Scroll Buttons:**
+  - **Scroll Left (Pin 5)** → move left in message
+  - **Scroll Right (Pin 6)** → move right in message
+
+- **LCD Display:**
+  - Line 1: Static label (e.g., “Message:”)
+  - Line 2: Current message (scrollable)
+
+---
+
+## Supported Characters
+
+Morse decoder supports:
+- Letters: A–Z  
+- Symbols: `. , ? ! - / @ ( ) "`
+
+Any unrecognized Morse pattern will return a `?`.
+
+---
+
+## License
+
+This project is licensed under the MIT License.  
+You may use, modify, and distribute it for educational or personal use.
+
+---
+
+## Contributions
+
+Feel free to fork, suggest improvements, or submit pull requests.  
+Ideas like EEPROM saving, tone output, or better decoding logic are welcome!
