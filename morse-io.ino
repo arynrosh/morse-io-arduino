@@ -12,7 +12,9 @@ const int scrollRightPin  = 6;
 // Morse tracking
 unsigned long pressStart = 0;
 unsigned long lastRelease = 0;
+unsigned long lastInteraction = 0;
 bool isPressed = false;
+bool showingSplash = false;
 String morseInput = "";
 String message = "";
 
@@ -33,20 +35,29 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print("Press to Start!");
 
-  // Wait for Morse button to be pressed and released
-  while (digitalRead(morseButtonPin) == HIGH); // wait for press
-  while (digitalRead(morseButtonPin) == LOW);  // wait for release
-
-  lcd.clear();
-  lcd.print("Morse Typing:");
   Serial.begin(9600);
+  showingSplash = true;
 }
 
-
 void loop() {
+  // Wake from splash screen
+  if (showingSplash && digitalRead(morseButtonPin) == LOW) {
+    while (digitalRead(morseButtonPin) == LOW);
+    lcd.clear();
+    lcd.print("Morse Typing:");
+    scrollIndex = 0;
+    morseInput = "";
+    message = "";
+    showingSplash = false;
+    lastInteraction = millis();
+    delay(200);
+    return;
+  }
+
+  if (showingSplash) return;
+
   // Morse Input
   bool currentState = digitalRead(morseButtonPin) == LOW;
-
   if (currentState && !isPressed) {
     isPressed = true;
     pressStart = millis();
@@ -65,6 +76,7 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print(morseInput + "            ");
     lastRelease = millis();
+    lastInteraction = millis();
   }
 
   // End of letter
@@ -74,6 +86,7 @@ void loop() {
     morseInput = "";
     scrollIndex = max(0, message.length() - 16);
     updateLCD();
+    lastInteraction = millis();
   }
 
   // Space Button
@@ -81,28 +94,28 @@ void loop() {
     message += ' ';
     scrollIndex = max(0, message.length() - 16);
     updateLCD();
+    lastInteraction = millis();
     delay(300);
   }
 
   // Delete / Clear Button
   if (digitalRead(deleteButtonPin) == LOW) {
     unsigned long holdStart = millis();
-    while (digitalRead(deleteButtonPin) == LOW);  // wait for release
+    while (digitalRead(deleteButtonPin) == LOW);
     unsigned long duration = millis() - holdStart;
 
     if (duration < 1000) {
-      // Short press deletes last character
       if (message.length() > 0) {
         message.remove(message.length() - 1);
         scrollIndex = max(0, message.length() - 16);
         updateLCD();
       }
     } else {
-      // Long press clears entire message
       message = "";
       scrollIndex = 0;
       updateLCD();
     }
+    lastInteraction = millis();
     delay(300);
   }
 
@@ -110,6 +123,7 @@ void loop() {
   if (digitalRead(scrollLeftPin) == LOW) {
     if (scrollIndex > 0) scrollIndex--;
     updateLCD();
+    lastInteraction = millis();
     delay(200);
   }
 
@@ -117,7 +131,18 @@ void loop() {
   if (digitalRead(scrollRightPin) == LOW) {
     if (scrollIndex < max(0, message.length() - 16)) scrollIndex++;
     updateLCD();
+    lastInteraction = millis();
     delay(200);
+  }
+
+  // Timeout
+  if (!showingSplash && millis() - lastInteraction > 10000) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Morse I/O");
+    lcd.setCursor(0, 1);
+    lcd.print("Press to Start!");
+    showingSplash = true;
   }
 }
 
@@ -132,7 +157,7 @@ void updateLCD() {
     lcd.print(message);
   } else {
     if (scrollIndex < message.length() - 16) {
-      scrollIndex = message.length() - 16;  // auto-scroll to right
+      scrollIndex = message.length() - 16;
     }
     lcd.print(message.substring(scrollIndex, scrollIndex + 16));
   }
